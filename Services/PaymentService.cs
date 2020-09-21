@@ -27,11 +27,14 @@ namespace dotnetexample.Services
         public PaymentModel Get(string id) =>
             _paymentModels.Find<PaymentModel>(PaymentModel => PaymentModel.Id == id).FirstOrDefault();
 
-        public PaymentModel Create(PaymentModel paymentModel)
+        public PaymentResponse Create(PaymentModel paymentModel)
         {
             _paymentModels.InsertOne(paymentModel);
-            _acquiringBank.processPayment();
-            return paymentModel;
+            
+            return new PaymentResponse { 
+                paymentRequest = paymentModel,
+                paymentResponse = _acquiringBank.processPayment(),
+            };
         }
 
         public void Update(string id, PaymentModel paymentModelIn) =>

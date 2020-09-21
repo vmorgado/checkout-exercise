@@ -11,9 +11,16 @@ namespace dotnetexample.Models
         public string Issuer { get; set; }
         public string CardHolder { get; set; }
         public decimal Value { get; set; }
+        public string Currency { get; set; }
         public string CardNumber { get; set; }
         public int ExpiryMonth { get; set; }
         public int ExpiryYear { get; set; }
         public string CCV { get; set; }
+        public BankResponse response { get; set;}
+    }
+
+    public class PaymentResponse {
+        public PaymentModel paymentRequest { get; set;}
+        public BankResponse paymentResponse { get; set; }
     }
 }

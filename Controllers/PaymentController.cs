@@ -8,7 +8,7 @@ namespace dotnetexample.Controllers
 
 {
     [ApiController]
-    [Route("payment/[controller]")]
+    [Route("payment")]
     public class PaymentController : ControllerBase
     {
         private readonly PaymentService _paymentService;
@@ -36,41 +36,11 @@ namespace dotnetexample.Controllers
         }
 
         [HttpPost]
-        public ActionResult<PaymentModel> Create(PaymentModel payment)
+        public ActionResult<PaymentResponse> Create(PaymentModel payment)
         {
             _paymentService.Create(payment);
 
             return CreatedAtRoute("GetPayment", new { id = payment.Id.ToString() }, payment);
-        }
-
-        [HttpPut("{id:length(24)}")]
-        public IActionResult Update(string id, PaymentModel paymentIn)
-        {
-            var payment = _paymentService.Get(id);
-
-            if (payment == null)
-            {
-                return NotFound();
-            }
-
-            _paymentService.Update(id, paymentIn);
-
-            return NoContent();
-        }
-
-        [HttpDelete("{id:length(24)}")]
-        public IActionResult Delete(string id)
-        {
-            var payment = _paymentService.Get(id);
-
-            if (payment == null)
-            {
-                return NotFound();
-            }
-
-            _paymentService.Remove(payment.Id);
-
-            return NoContent();
         }
     }
 }

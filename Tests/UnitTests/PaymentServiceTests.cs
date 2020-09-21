@@ -51,8 +51,11 @@ namespace UnitTests
  
             var mongoCollectionMock = new Mock<IMongoCollection<PaymentModel>>();
             mongoCollectionMock.Setup(col => col.InsertOne( paymentModelDocument, null, default));
-
-            var acquiringBank = new MockedAcquiringBank {};
+            
+            var seedMocker = new Mock<IRandomNumberGenerator>();
+            seedMocker.Setup<int>(s => s.Generate()).Returns(2);
+            
+            var acquiringBank = new MockedAcquiringBank(seedMocker.Object);
 
             var paymentService = new PaymentService( mongoCollectionMock.Object, acquiringBank );
             var result = paymentService.Create(createPaymentDto);

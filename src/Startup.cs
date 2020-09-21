@@ -42,7 +42,8 @@ namespace dotnetexample
                 return database.GetCollection<PaymentModel>(settings.PaymentCollectionName);
             });
             
-            services.AddSingleton<IAcquiringBank>(new MockedAcquiringBank {});
+            var randomSeed = new RandomNumberGenerator();
+            services.AddSingleton<IAcquiringBank>(new MockedAcquiringBank(randomSeed));
             services.AddSingleton<IPaymentService>(
                 sp => new PaymentService(sp.GetRequiredService<IMongoCollection<PaymentModel>>(), sp.GetRequiredService<IAcquiringBank>()) {}
             );

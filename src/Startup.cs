@@ -1,4 +1,5 @@
 using System;
+using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,14 +29,23 @@ namespace dotnetexample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.Configure<PaymentDatabaseSettings>(
-                Configuration.GetSection(nameof(PaymentDatabaseSettings)));
 
-            services.AddSingleton<IPaymentDatabaseSettings>(sp =>
-                sp.GetRequiredService<IOptions<PaymentDatabaseSettings>>().Value);
+            services.Configure<PaymentDatabaseSettings>(Configuration.GetSection(nameof(PaymentDatabaseSettings)));
+            services.AddSingleton<IPaymentDatabaseSettings>(sp => sp.GetRequiredService<IOptions<PaymentDatabaseSettings>>().Value);
 
+            // Initializing the Mongo Client at this time should improve performance and make it mockable on tests
+            services.AddSingleton<IMongoCollection<PaymentModel>>( sp => {
+
+                var settings = sp.GetRequiredService<IPaymentDatabaseSettings>();
+                var client = new MongoClient(settings.ConnectionString);
+                var database = client.GetDatabase(settings.DatabaseName);
+                return database.GetCollection<PaymentModel>(settings.PaymentCollectionName);
+            });
+            
             services.AddSingleton<IAcquiringBank>(new MockedAcquiringBank {});
-            services.AddSingleton<PaymentService>();
+            services.AddSingleton<IPaymentService>(
+                sp => new PaymentService(sp.GetRequiredService<IMongoCollection<PaymentModel>>(), sp.GetRequiredService<IAcquiringBank>()) {}
+            );
             services.AddControllers();
             services.AddSwaggerDocument();
 

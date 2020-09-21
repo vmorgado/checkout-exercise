@@ -1,4 +1,4 @@
 bin/
-obj/
+out/
 Tests/UnitTests/obj
 Tests/UnitTests/bin

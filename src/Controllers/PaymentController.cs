@@ -11,17 +11,13 @@ namespace dotnetexample.Controllers
     [Route("payment")]
     public class PaymentController : ControllerBase
     {
-        private readonly PaymentService _paymentService;
+        private readonly IPaymentService _paymentService;
         private readonly ILogger<PaymentController> _logger;
-        public PaymentController(ILogger<PaymentController> logger, PaymentService paymentService) {
+        public PaymentController(ILogger<PaymentController> logger, IPaymentService paymentService) {
             _logger = logger;
             _paymentService = paymentService;
         }
-
-        [HttpGet]
-        public ActionResult<List<PaymentModel>> Get() =>
-            _paymentService.Get();
-
+        
         [HttpGet("{id:length(24)}", Name = "GetPayment")]
         public ActionResult<PaymentModel> Get(string id)
         {
@@ -36,11 +32,11 @@ namespace dotnetexample.Controllers
         }
 
         [HttpPost]
-        public ActionResult<PaymentResponse> Create(PaymentModel payment)
+        public ActionResult<PaymentResponse> Create(CreatePaymentDto payment)
         {
-            _paymentService.Create(payment);
+            var response = _paymentService.Create(payment);
 
-            return CreatedAtRoute("GetPayment", new { id = payment.Id.ToString() }, payment);
+            return response;
         }
     }
 }

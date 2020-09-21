@@ -1,6 +1,6 @@
 namespace dotnetexample.Models
 {
-    public class MockedAquiringBank : IAcquiringBank {
+    public class MockedAcquiringBank : IAcquiringBank {
 
         public BankResponse processPayment() {
             

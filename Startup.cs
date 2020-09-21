@@ -34,6 +34,7 @@ namespace dotnetexample
             services.AddSingleton<IPaymentDatabaseSettings>(sp =>
                 sp.GetRequiredService<IOptions<PaymentDatabaseSettings>>().Value);
 
+            services.AddSingleton<IAcquiringBank>(new MockedAcquiringBank {});
             services.AddSingleton<PaymentService>();
             services.AddControllers();
         }

@@ -9,9 +9,12 @@ namespace dotnetexample.Services
     public class PaymentService
     {
         private readonly IMongoCollection<PaymentModel> _paymentModels;
+        private readonly IAcquiringBank _acquiringBank;
 
-        public PaymentService(IPaymentDatabaseSettings settings)
+        public PaymentService(IPaymentDatabaseSettings settings, IAcquiringBank acquiringBank)
         {
+            _acquiringBank = acquiringBank;
+
             var client = new MongoClient(settings.ConnectionString);
             var database = client.GetDatabase(settings.DatabaseName);
 
@@ -24,19 +27,20 @@ namespace dotnetexample.Services
         public PaymentModel Get(string id) =>
             _paymentModels.Find<PaymentModel>(PaymentModel => PaymentModel.Id == id).FirstOrDefault();
 
-        public PaymentModel Create(PaymentModel PaymentModel)
+        public PaymentModel Create(PaymentModel paymentModel)
         {
-            _paymentModels.InsertOne(PaymentModel);
-            return PaymentModel;
+            _paymentModels.InsertOne(paymentModel);
+            _acquiringBank.processPayment();
+            return paymentModel;
         }
 
-        public void Update(string id, PaymentModel PaymentModelIn) =>
-            _paymentModels.ReplaceOne(PaymentModel => PaymentModel.Id == id, PaymentModelIn);
+        public void Update(string id, PaymentModel paymentModelIn) =>
+            _paymentModels.ReplaceOne(paymentModel => paymentModel.Id == id, paymentModelIn);
 
-        public void Remove(PaymentModel PaymentModelIn) =>
-            _paymentModels.DeleteOne(PaymentModel => PaymentModel.Id == PaymentModelIn.Id);
+        public void Remove(PaymentModel paymentModelIn) =>
+            _paymentModels.DeleteOne(paymentModel => paymentModel.Id == paymentModelIn.Id);
 
         public void Remove(string id) => 
-            _paymentModels.DeleteOne(PaymentModel => PaymentModel.Id == id);        
+            _paymentModels.DeleteOne(paymentModel => paymentModel.Id == id);        
     }
 }

@@ -16,8 +16,7 @@ using dotnetexample.Services;
 using Microsoft.Extensions.Options;
 using dotnetexample.Authentication;
 using System.Text.Encodings.Web;
-using NSwag.AspNetCore;
-using NSwag.Generation.AspNetCore;
+using NSwag;
 
 namespace dotnetexample
 {
@@ -64,8 +63,24 @@ namespace dotnetexample
             services.AddSingleton<IPaymentService>(
                 sp => new PaymentService(sp.GetRequiredService<IMongoCollection<PaymentModel>>(), sp.GetRequiredService<IAcquiringBank>()) {}
             );
+
+            services.AddSwaggerDocument( document => {
+                document.Description = "payment hub";
+                document.Title = "checkout.com payment hub";
+
+                var securityScheme = new OpenApiSecurityScheme {
+                    Description = "Api key needed to access the endpoints. X-Api-Key: My_API_Key",
+                    In = OpenApiSecurityApiKeyLocation.Header,
+                    Name = "X-Api-Key",
+                    Type = OpenApiSecuritySchemeType.ApiKey,
+                    
+                };
+
+                document.AddSecurity( "X-Api-Key", new string[] {"payment"}, securityScheme);
+            });
+
+            
             services.AddControllers();
-            services.AddSwaggerDocument();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -88,13 +103,13 @@ namespace dotnetexample
             app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseOpenApi();
+            app.UseSwaggerUi3( c => c.WithCredentials = true );  
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-            
-            app.UseOpenApi();
-            app.UseSwaggerUi3();  
 
         }
     }

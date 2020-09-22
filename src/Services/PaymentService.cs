@@ -1,6 +1,8 @@
 
 using dotnetexample.Models;
+using dotnetexample.Exception;
 using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,7 +28,13 @@ namespace dotnetexample.Services
         }
         
         public PaymentResponse Create(CreatePaymentDto createPaymentDto)
-        {
+        {   
+            var bankResponse = new BankResponse {
+                id = "not-processed-by-the-bank",
+                successful = false,
+            };
+            
+
             var paymentModel = new PaymentModel {
                 Issuer = createPaymentDto.Issuer,
                 CardHolder = createPaymentDto.CardHolder,
@@ -37,15 +45,27 @@ namespace dotnetexample.Services
                 ExpiryYear = createPaymentDto.ExpiryYear,
                 CCV = createPaymentDto.CCV,
                 transactionDate = System.DateTimeOffset.Now.UtcDateTime,
-                response = new BankResponse {
-                    id = "",
-                    successful = false,
-                }
+                response = bankResponse
             };
 
             _paymentModelCollection.InsertOne(paymentModel);
             
-            var bankResponse = _acquiringBank.processPayment();
+            try {
+                bankResponse = _acquiringBank.processPayment( new BankRequest {
+                    CardHolder = createPaymentDto.CardHolder,
+                    Value = createPaymentDto.Value,
+                    Currency = createPaymentDto.Currency,
+                    CardNumber = createPaymentDto.CardNumber,
+                    ExpiryMonth = createPaymentDto.ExpiryMonth,
+                    ExpiryYear = createPaymentDto.ExpiryYear,
+                    CCV = createPaymentDto.CCV,
+                });
+
+            }  catch (System.Exception ex) {
+
+                throw new AcquiringBankNotAvailable(ex.Message);
+            }
+
             paymentModel.response = bankResponse;
 
             this.Update(paymentModel.Id, paymentModel);
@@ -58,6 +78,7 @@ namespace dotnetexample.Services
                 paymentRequest = paymentModel,
                 paymentResponse = bankResponse,
             };
+            
         }
 
         public void Update(string id, PaymentModel paymentModelIn) =>

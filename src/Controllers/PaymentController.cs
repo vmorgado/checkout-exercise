@@ -18,12 +18,10 @@ namespace dotnetexample.Controllers
         public PaymentController(ILogger<PaymentController> logger, IPaymentService paymentService ) {
             _logger = logger;
             _paymentService = paymentService;
-
-            
         }
         
         [HttpGet("{id:length(24)}", Name = "GetPayment")]
-        public IActionResult Get(string id)
+        public ActionResult<PaymentModel> Get(string id)
         {
             var payment = _paymentService.Get(id);
 
@@ -32,16 +30,16 @@ namespace dotnetexample.Controllers
                 return NotFound();
             }
 
-            return new ObjectResult(payment);
+            return payment;
         }
 
         [HttpPost]
         [Authorize]
-        public IActionResult Create(CreatePaymentDto payment)
+        public ActionResult<PaymentResponse> Create(CreatePaymentDto payment)
         {
             var response = _paymentService.Create(payment);
 
-            return new ObjectResult(response);
+            return response;
         }
     }
 }

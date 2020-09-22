@@ -60,7 +60,7 @@ namespace UnitTests
             var paymentService = new PaymentService( mongoCollectionMock.Object, acquiringBank );
             var result = paymentService.Create(createPaymentDto);
             Assert.IsType<PaymentResponse>(result);
-            Assert.Equal(result.paymentResponse.successful, true);
+            Assert.Equal(true, result.paymentResponse.successful);
         }
     }
 }

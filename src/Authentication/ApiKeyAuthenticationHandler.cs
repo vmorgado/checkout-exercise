@@ -29,7 +29,6 @@ namespace dotnetexample.Authentication
                 return AuthenticateResult.NoResult();
             }
             
-            Console.Write("here we are");
             var providedApiKey = apiKeyHeaderValues.FirstOrDefault();
 
             if (apiKeyHeaderValues.Count == 0 || string.IsNullOrWhiteSpace(providedApiKey))

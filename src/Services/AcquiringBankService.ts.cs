@@ -1,21 +1,24 @@
-using dotnetexample.Services;
-namespace dotnetexample.Models
+using dotnetexample.Models;
+
+namespace dotnetexample.Services
 {
-    public class MockedAcquiringBank : IAcquiringBank {
+public class MockedAcquiringBank : IAcquiringBank {
         
         IRandomNumberGenerator _randomSeed;
         public MockedAcquiringBank (IRandomNumberGenerator randomSeed ) {
             _randomSeed = randomSeed;
         }
-        public BankResponse processPayment() {
+        public BankResponse processPayment(BankRequest request) {
+            var seed = _randomSeed.Generate();
             
-            if (_randomSeed.Generate() < 7) {
+            if (seed  < 7) {
                 return new BankResponse {
                     id = "successful-transaction",
                     successful = true
                 };
             }
-            if (_randomSeed.Generate() < 9) {
+
+            if (seed < 9) {
                 return new BankResponse {
                     id = "failed-transaction",
                     successful = false
@@ -24,14 +27,5 @@ namespace dotnetexample.Models
 
             throw new System.Exception("Bank Service Unavailable");
         }
-    }
-    public interface IAcquiringBank
-    {
-        BankResponse processPayment();
-    }
-
-    public class BankResponse {
-        public string id { get; set; }
-        public bool successful { get; set; }
     }
 }

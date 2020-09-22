@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using dotnetexample.Services;
 using dotnetexample.Models;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 
 namespace dotnetexample.Controllers
 
@@ -13,13 +15,15 @@ namespace dotnetexample.Controllers
     {
         private readonly IPaymentService _paymentService;
         private readonly ILogger<PaymentController> _logger;
-        public PaymentController(ILogger<PaymentController> logger, IPaymentService paymentService) {
+        public PaymentController(ILogger<PaymentController> logger, IPaymentService paymentService ) {
             _logger = logger;
             _paymentService = paymentService;
+
+            
         }
         
         [HttpGet("{id:length(24)}", Name = "GetPayment")]
-        public ActionResult<PaymentModel> Get(string id)
+        public IActionResult Get(string id)
         {
             var payment = _paymentService.Get(id);
 
@@ -28,15 +32,16 @@ namespace dotnetexample.Controllers
                 return NotFound();
             }
 
-            return payment;
+            return new ObjectResult(payment);
         }
 
         [HttpPost]
-        public ActionResult<PaymentResponse> Create(CreatePaymentDto payment)
+        [Authorize]
+        public IActionResult Create(CreatePaymentDto payment)
         {
             var response = _paymentService.Create(payment);
 
-            return response;
+            return new ObjectResult(response);
         }
     }
 }

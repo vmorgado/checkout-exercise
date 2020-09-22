@@ -17,7 +17,13 @@ namespace dotnetexample.Services
             _paymentModelCollection = paymentModelCollection;
         }
 
-        public PaymentModel Get(string id) => _paymentModelCollection.Find<PaymentModel>(PaymentModel => PaymentModel.Id == id).FirstOrDefault();
+        public PaymentModel Get(string id) { 
+            
+            var paymentModel = _paymentModelCollection.Find<PaymentModel>(PaymentModel => PaymentModel.Id == id).FirstOrDefault();
+            paymentModel.CardNumber = this.HideCreditCardNumber(paymentModel.CardNumber);
+            paymentModel.CCV = this.HideCCV();
+            return paymentModel;
+        }
         
         public PaymentResponse Create(CreatePaymentDto createPaymentDto)
         {
@@ -44,6 +50,10 @@ namespace dotnetexample.Services
 
             this.Update(paymentModel.Id, paymentModel);
 
+
+            paymentModel.CardNumber = this.HideCreditCardNumber(paymentModel.CardNumber);
+            paymentModel.CCV = this.HideCCV();
+
             return new PaymentResponse { 
                 paymentRequest = paymentModel,
                 paymentResponse = bankResponse,
@@ -52,5 +62,24 @@ namespace dotnetexample.Services
 
         public void Update(string id, PaymentModel paymentModelIn) =>
             _paymentModelCollection.ReplaceOne(paymentModel => paymentModel.Id == id, paymentModelIn, new ReplaceOptions {}, default);
+
+
+
+        private string HideCreditCardNumber( string creditCardNumber ) {
+            try {
+                var lastIndex = creditCardNumber.LastIndexOf("-");
+                var lenght = creditCardNumber.Length;
+                
+                return string.Join("XXXX-XXXX-XXXX-", creditCardNumber.Substring(lastIndex, lenght - lastIndex));
+            } catch {
+
+                return "";
+            }
+        }
+
+        private string HideCCV() {
+
+            return "***";
+        }
     }
 }

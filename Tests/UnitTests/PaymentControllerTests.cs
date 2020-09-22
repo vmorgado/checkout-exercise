@@ -58,9 +58,10 @@ namespace dotnetexample.Tests.UnitTests
 
             var result = controller.Create(createPaymentDto);
             
-            Assert.IsType<ActionResult<PaymentResponse>>(result);
-            Assert.IsType<PaymentResponse>(result.Value);
-            Assert.IsAssignableFrom<PaymentModel>(result.Value.paymentRequest);
+            
+
+            Assert.IsType<PaymentResponse>(result);
+            Assert.IsAssignableFrom<PaymentModel>(result.paymentRequest);
             Assert.IsAssignableFrom<BankResponse>(result.Value.paymentResponse);
             Assert.Equal( result.Value.paymentRequest.response.id, result.Value.paymentResponse.id);
         }

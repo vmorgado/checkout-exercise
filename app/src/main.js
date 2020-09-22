@@ -1,7 +1,12 @@
 import Vue from 'vue'
 import App from './App.vue'
 import vuetify from './plugins/vuetify';
-
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+import VueCardFormat from 'vue-credit-card-validation';
+ 
+Vue.use(VueCardFormat);
+Vue.use(VueAxios, axios)
 Vue.config.productionTip = false
 
 new Vue({

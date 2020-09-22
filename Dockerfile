@@ -6,4 +6,4 @@ WORKDIR /App
 
 RUN dotnet user-secrets set "Kestrel:Certificates:Development:Password" "defaultpassword" --project "/App/src/dotnetexample.csproj"
 
-CMD ["dotnet", "run", "--project", "/App/src/dotnetexample.csproj"]
+CMD ["dotnet", "run", "--project", "/App/src/dotnetexample.csproj", "-c", "Debug"]

@@ -1,21 +1,19 @@
 <template>
   <v-app>
     <v-main>
-      <PaymentForm/>
+      <BuyProductPage/>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import PaymentForm from './components/PaymentForm';
+import BuyProductPage from './components/BuyProductPage';
 
 export default {
   name: 'App',
-
   components: {
-    PaymentForm,
+    BuyProductPage
   },
-
   data: () => ({
     //
   }),

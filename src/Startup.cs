@@ -14,6 +14,10 @@ using Microsoft.Extensions.Logging;
 using dotnetexample.Models;
 using dotnetexample.Services;
 using Microsoft.Extensions.Options;
+using dotnetexample.Authentication;
+using System.Text.Encodings.Web;
+using NSwag.AspNetCore;
+using NSwag.Generation.AspNetCore;
 
 namespace dotnetexample
 {
@@ -29,13 +33,26 @@ namespace dotnetexample
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(options => {
+                options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+                options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
+            }).AddApiKeySupport(options => {});
+
+
+            services.AddAuthorization(options => {});
+
+            services.AddSingleton<IGetApiKeyQuery, InMemoryGetApiKeyQuery>();
+
 
             services.Configure<PaymentDatabaseSettings>(Configuration.GetSection(nameof(PaymentDatabaseSettings)));
-            services.AddSingleton<IPaymentDatabaseSettings>(sp => sp.GetRequiredService<IOptions<PaymentDatabaseSettings>>().Value);
+            services.AddSingleton<IPaymentDatabaseSettings>(sp => { 
+                var value = sp.GetRequiredService<IOptions<PaymentDatabaseSettings>>().Value;
+                return value;
+            });
 
             // Initializing the Mongo Client at this time should improve performance and make it mockable on tests
             services.AddSingleton<IMongoCollection<PaymentModel>>( sp => {
-
+                
                 var settings = sp.GetRequiredService<IPaymentDatabaseSettings>();
                 var client = new MongoClient(settings.ConnectionString);
                 var database = client.GetDatabase(settings.DatabaseName);
@@ -49,7 +66,6 @@ namespace dotnetexample
             );
             services.AddControllers();
             services.AddSwaggerDocument();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -62,17 +78,24 @@ namespace dotnetexample
 
             app.UseHttpsRedirection();
 
+            app.UseCors((options) => {
+                options.AllowAnyOrigin();
+                options.AllowAnyHeader();
+            });
+
             app.UseRouting();
-
+            
+            app.UseAuthentication();
             app.UseAuthorization();
-
-            app.UseOpenApi();
-            app.UseSwaggerUi3();        
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+            
+            app.UseOpenApi();
+            app.UseSwaggerUi3();  
+
         }
     }
 }

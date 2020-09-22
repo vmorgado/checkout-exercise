@@ -17,6 +17,9 @@ services:
         environment: 
             - ASPNETCORE_Kestrel__Certificates__Default__Path=/App/certificates/backend.pfx
             - ASPNETCORE_Kestrel__Certificates__Default__Password=defaultpassword
+            - PaymentDatabaseSettings__PaymentCollectionName=payment
+            - PaymentDatabaseSettings__ConnectionString=mongodb://mongo:27017
+            - PaymentDatabaseSettings__DatabaseName=paymenthub
     frontend:
         image: node:12.18-buster
         working_dir: "/app"

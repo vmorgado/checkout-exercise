@@ -5,3 +5,23 @@ services:
         restart: always
         ports:
             - "27017:27017"
+    payment:
+        build: .
+        depends_on:
+            - mongo
+        volumes:
+            - ./:/App:delegated
+        ports:
+            - "5000:5000"
+            - "5001:5001"
+        environment: 
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/App/certificates/backend.pfx
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=defaultpassword
+    frontend:
+        image: node:12.18-buster
+        working_dir: "/app"
+        volumes:
+            - ./app:/app
+        command: ["npm", "run", "serve"]
+        ports:
+            - "80:8080"

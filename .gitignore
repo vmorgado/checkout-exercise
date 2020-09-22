@@ -2,3 +2,4 @@ bin/
 src/obj/
 Tests/UnitTests/obj
 Tests/UnitTests/bin
+certificates/*

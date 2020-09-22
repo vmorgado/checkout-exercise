@@ -13,7 +13,7 @@ namespace dotnetexample.Models
         public string CardHolder { get; set; }
         public decimal Value { get; set; }
         public string Currency { get; set; }
-        public string CardNumber { get; set; }
+        public string CardNumber { set; get;}
         public int ExpiryMonth { get; set; }
         public int ExpiryYear { get; set; }
         public string CCV { get; set; }

@@ -21,6 +21,8 @@ namespace dotnetexample
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseKestrel();
+                    webBuilder.UseUrls("http://0.0.0.0:5000", "https://0.0.0.0:5001");
                 });
     }
 }

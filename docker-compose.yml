@@ -27,4 +27,4 @@ services:
             - ./app:/app
         command: ["npm", "run", "serve"]
         ports:
-            - "80:8080"
+            - "8080:8080"

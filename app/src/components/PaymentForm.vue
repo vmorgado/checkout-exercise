@@ -8,18 +8,18 @@
       <v-card-text>
         <p> <b>Full transaction value : </b> {{ value }} {{ currency }} </p>
         <v-form>
-          <v-text-field label="Full Name" name="cardHolder" v-model="cardHolder" prepend-icon="mdi-account" type="text" required></v-text-field>
-          <v-text-field label="Card Number" name="cardNumber" v-model="cardNumber" prepend-icon="mdi-card" type="tel" placeholder="#### #### #### ####" maxlength="16" v-cardformat:formatCardNumber required></v-text-field>
+          <v-text-field :rules="validation.name" label="Full Name" name="cardHolder" v-model="cardHolder" prepend-icon="mdi-account" type="text" required></v-text-field>
+          <v-text-field :rules="validation.card" label="Card Number" name="cardNumber" v-model="cardNumber" prepend-icon="mdi-card" type="tel" placeholder="#### #### #### ####" maxlength="16" v-cardformat:formatCardNumber required></v-text-field>
           <v-row>
             <v-col cols="6" sm="12" md="6">
-                <v-select label="Expires (Month)" :items="months" name="expiryMonth" v-model="expiryMonth" prepend-icon="mdi-calendar" required></v-select>
+                <v-select :rules="validation.expiryMonth" label="Expires (Month)" :items="months" name="expiryMonth" v-model="expiryMonth" prepend-icon="mdi-calendar" required></v-select>
             </v-col>
             <v-col cols="6" sm="12" md="6">
-                <v-select label="Expires (Year)" :items="years" name="expiryYear" v-model="expiryYear" prepend-icon="mdi-calendar" required></v-select>
+                <v-select :rules="validation.expiryYear" label="Expires (Year)" :items="years" name="expiryYear" v-model="expiryYear" prepend-icon="mdi-calendar" required></v-select>
             </v-col>
             
             <v-col cols="12" sm="12" md="12">
-                <v-text-field label="CCV" name="ccv" v-model="ccv" prepend-icon="mdi-lock" type="password" v-cardformat:formatCardCVC required></v-text-field>
+                <v-text-field :rules="validation.ccv" label="CCV" name="ccv" v-model="ccv" prepend-icon="mdi-lock" type="password" v-cardformat:formatCardCVC required></v-text-field>
             </v-col>
           </v-row>
         </v-form>
@@ -62,6 +62,22 @@ export default {
     apiKey: String,
   },
   data: () => ({
+    validation: {
+      card: [
+        v => !!v || 'Card number is required',
+        v => new RegExp(`^(1298|1267|4512|4567|8901|8933)([]?[0-9]{4}){3}$`).test(v) || "Please insert a valid Credit Card Nubmer"
+      ],
+      name: [v => !!v || 'Name is required'],
+      expiryYear: [v => !!v || 'Expire Year is required'],
+      expiryMonth: [v => !!v || 'Expire Month is required'],
+      ccv: [
+        v => !!v || 'CCV is required',
+        v => v.lenght() !== 3 || 'The CCV should be 3 numeric digits'
+      ],
+
+    },
+
+
     months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     years: [2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029, 2030],
     submitted: false,

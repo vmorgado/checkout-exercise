@@ -72,15 +72,15 @@ namespace dotnetexample
 
             // LOGGING SERVICE N STUFF
 
-            services.AddSingleton<ILoggerService, LoggerService>( sp => new LoggerService(sp.GetRequiredService<IMongoCollection<LogEntry>>()));
+            services.AddSingleton<ILoggerService>( sp => new LoggerService(sp.GetRequiredService<IMongoCollection<LogEntry>>()));
             // services.AddSingleton<RequestLogginggMiddleware>( sp => new RequestLogginggMiddleware( sp.GetRequiredService<LoggerService>()));
 
 
             // THIS IS THE REAL BUSINESS LOGIC :D :D
             var randomSeed = new RandomNumberGenerator();
             services.AddSingleton<IAcquiringBank>(new MockedAcquiringBank(randomSeed));
-            services.AddSingleton<IPaymentService, PaymentService>(
-                sp => new PaymentService(sp.GetRequiredService<IMongoCollection<PaymentModel>>(), sp.GetRequiredService<IAcquiringBank>(), sp.GetRequiredService<LoggerService>())
+            services.AddSingleton<IPaymentService>(
+                sp => new PaymentService(sp.GetRequiredService<IMongoCollection<PaymentModel>>(), sp.GetRequiredService<IAcquiringBank>(), sp.GetRequiredService<ILoggerService>())
             );
 
 

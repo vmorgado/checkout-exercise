@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace dotnetexample.Logging
 {
@@ -82,6 +83,7 @@ namespace dotnetexample.Logging
                 };
 
                 _logger.Log<ExceptionMetric>(LogLevel.Error, new EventId {}, exceptionMetric, e );
+                
                 await _next(httpContext);
             }
         }
@@ -122,13 +124,13 @@ namespace dotnetexample.Logging
                 
                 // when we intercept the payment request we have access to the card data at this point. in this case we should remove it before logging
 
-                var unserializedReqBody = BsonSerializer.Deserialize<CreatePaymentDto>(requestBody);
+                var unserializedReqBody = JsonSerializer.Deserialize<CreatePaymentDto>(requestBody);
                 unserializedReqBody.CardNumber = "";
                 unserializedReqBody.CCV = "";
                 unserializedReqBody.ExpiryMonth = 1;
                 unserializedReqBody.ExpiryYear = 1999;
                 
-                requestBody = Newtonsoft.Json.JsonConvert.SerializeObject(unserializedReqBody);
+                requestBody = JsonSerializer.Serialize<CreatePaymentDto>(unserializedReqBody);
             }
 
             if (requestBody.Length > 500)

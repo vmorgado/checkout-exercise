@@ -32,19 +32,14 @@ namespace dotnetexample.Models
         [Required]
         public decimal Value { get; set; }
         [Required]
-        [RegularExpression("EURO|DOLLAR", ErrorMessage = "Please select a valid currenct (EURO|DOLLAR)")]
         public string Currency { get; set; }
         [Required]
-        [RegularExpression(@"^(1298|1267|4512|4567|8901|8933)([\-\s]?[0-9]{4}){3}$)", ErrorMessage = "Invalid card number")]
         public string CardNumber { get; set; }
         [Required]
-        [Range(1, 12)]
         public int ExpiryMonth { get; set; }
         [Required]
-        [Range(0, 9999)]
         public int ExpiryYear { get; set; }
         [Required]
-        [Range(0, 999)]
         public string CCV { get; set; }
     }
 

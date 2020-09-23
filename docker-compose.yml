@@ -5,6 +5,9 @@ services:
         restart: always
         ports:
             - "27017:27017"
+        volumes:
+            - ./data/mongo:/data/db
+          
     payment:
         build: .
         depends_on:
@@ -17,9 +20,12 @@ services:
         environment: 
             - ASPNETCORE_Kestrel__Certificates__Default__Path=/App/certificates/backend.pfx
             - ASPNETCORE_Kestrel__Certificates__Default__Password=defaultpassword
-            - PaymentDatabaseSettings__PaymentCollectionName=payment
+            - PaymentDatabaseSettings__CollectionName=payments
             - PaymentDatabaseSettings__ConnectionString=mongodb://mongo:27017
             - PaymentDatabaseSettings__DatabaseName=paymenthub
+            - LoggingDatabaseSettings__CollectionName=logs
+            - LoggingDatabaseSettings__ConnectionString=mongodb://mongo:27017
+            - LoggingDatabaseSettings__DatabaseName=paymenthub
     frontend:
         image: node:12.18-buster
         working_dir: "/app"

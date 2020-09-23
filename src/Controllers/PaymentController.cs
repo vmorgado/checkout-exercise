@@ -5,6 +5,7 @@ using dotnetexample.Models;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using dotnetexample.Logging;
 
 namespace dotnetexample.Controllers
 
@@ -14,8 +15,8 @@ namespace dotnetexample.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        private readonly ILogger<PaymentController> _logger;
-        public PaymentController(ILogger<PaymentController> logger, IPaymentService paymentService ) {
+        private readonly ILoggerService _logger;
+        public PaymentController(ILoggerService logger, IPaymentService paymentService ) {
             _logger = logger;
             _paymentService = paymentService;
         }

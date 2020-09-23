@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using dotnetexample.Models;
 using dotnetexample.Services;
+using dotnetexample.Logging;
 using Microsoft.Extensions.Options;
 using dotnetexample.Authentication;
 using System.Text.Encodings.Web;
@@ -31,39 +32,59 @@ namespace dotnetexample
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
-        {
+        {   
+
+            // AUTHENTICATION AND AUTHORIZATION
             services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = ApiKeyAuthenticationOptions.DefaultScheme;
                 options.DefaultChallengeScheme = ApiKeyAuthenticationOptions.DefaultScheme;
             }).AddApiKeySupport(options => {});
-
-
             services.AddAuthorization(options => {});
-
             services.AddSingleton<IGetApiKeyQuery, InMemoryGetApiKeyQuery>();
 
-
+            // MONGO DB COLLECTIONS
             services.Configure<PaymentDatabaseSettings>(Configuration.GetSection(nameof(PaymentDatabaseSettings)));
-            services.AddSingleton<IPaymentDatabaseSettings>(sp => { 
+            services.Configure<LoggingDatabaseSettings>(Configuration.GetSection(nameof(LoggingDatabaseSettings)));
+            services.AddSingleton<PaymentDatabaseSettings>(sp => { 
                 var value = sp.GetRequiredService<IOptions<PaymentDatabaseSettings>>().Value;
                 return value;
             });
-
+            services.AddSingleton<LoggingDatabaseSettings>(sp => { 
+                var value = sp.GetRequiredService<IOptions<LoggingDatabaseSettings>>().Value;
+                return value;
+            });
             // Initializing the Mongo Client at this time should improve performance and make it mockable on tests
             services.AddSingleton<IMongoCollection<PaymentModel>>( sp => {
                 
-                var settings = sp.GetRequiredService<IPaymentDatabaseSettings>();
+                var settings = sp.GetRequiredService<PaymentDatabaseSettings>();
                 var client = new MongoClient(settings.ConnectionString);
                 var database = client.GetDatabase(settings.DatabaseName);
-                return database.GetCollection<PaymentModel>(settings.PaymentCollectionName);
+                return database.GetCollection<PaymentModel>(settings.CollectionName);
             });
-            
+            // this mongo blocks of code can be refactored into more efficient and readable code
+            services.AddSingleton<IMongoCollection<LogEntry>>( sp => {
+                
+                var settings = sp.GetRequiredService<LoggingDatabaseSettings>();
+                var client = new MongoClient(settings.ConnectionString);
+                var database = client.GetDatabase(settings.DatabaseName);
+                return database.GetCollection<LogEntry>(settings.CollectionName);
+            });
+
+            // LOGGING SERVICE N STUFF
+
+            services.AddSingleton<ILoggerService, LoggerService>( sp => new LoggerService(sp.GetRequiredService<IMongoCollection<LogEntry>>()));
+            // services.AddSingleton<RequestLogginggMiddleware>( sp => new RequestLogginggMiddleware( sp.GetRequiredService<LoggerService>()));
+
+
+            // THIS IS THE REAL BUSINESS LOGIC :D :D
             var randomSeed = new RandomNumberGenerator();
             services.AddSingleton<IAcquiringBank>(new MockedAcquiringBank(randomSeed));
-            services.AddSingleton<IPaymentService>(
-                sp => new PaymentService(sp.GetRequiredService<IMongoCollection<PaymentModel>>(), sp.GetRequiredService<IAcquiringBank>()) {}
+            services.AddSingleton<IPaymentService, PaymentService>(
+                sp => new PaymentService(sp.GetRequiredService<IMongoCollection<PaymentModel>>(), sp.GetRequiredService<IAcquiringBank>(), sp.GetRequiredService<LoggerService>())
             );
 
+
+            // SWAGGER AND CONTROLLERS
             services.AddSwaggerDocument( document => {
                 document.Description = "payment hub";
                 document.Title = "checkout.com payment hub";
@@ -78,8 +99,6 @@ namespace dotnetexample
 
                 document.AddSecurity( "X-Api-Key", new string[] {"payment"}, securityScheme);
             });
-
-            
             services.AddControllers();
         }
 
@@ -99,6 +118,10 @@ namespace dotnetexample
             });
 
             app.UseRouting();
+
+            // var loggerService = app.ApplicationServices.GetRequiredService<LoggerService>();
+
+            app.UseMiddleware<RequestLogginggMiddleware>();
             
             app.UseAuthentication();
             app.UseAuthorization();

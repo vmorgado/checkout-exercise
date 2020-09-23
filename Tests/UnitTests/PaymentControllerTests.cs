@@ -7,6 +7,7 @@ using dotnetexample.Models;
 using System.Threading.Tasks;
 using Moq;
 using Microsoft.AspNetCore.Mvc;
+using dotnetexample.Logging;
 
 namespace dotnetexample.Tests.UnitTests
 {
@@ -15,6 +16,7 @@ namespace dotnetexample.Tests.UnitTests
         [Fact]
         public async Task Should_Be_Able_To_Preform_A_Payment_And_Recieve_A_Successful_Transaction()
         {
+            var mockedIdentifier = new DateTimeOffset().ToUnixTimeMilliseconds().ToString();
             var createPaymentDto = new CreatePaymentDto {
                 Issuer = "amazon-issuer-id",
                 CardHolder = "John Cage",
@@ -27,8 +29,10 @@ namespace dotnetexample.Tests.UnitTests
             };
 
             var bankResponse = new BankResponse {
-                id = "mocekd-transaction-id",
+                id = mockedIdentifier,
                 successful = true,
+                message = "very nice",
+                statusCode = 1
             };
 
             var paymentResponse = new PaymentResponse {
@@ -50,7 +54,7 @@ namespace dotnetexample.Tests.UnitTests
 
 
             var mockPaymentService = new Mock<IPaymentService>();
-            var mockLogger = new Mock<ILogger<PaymentController>>();
+            var mockLogger = new Mock<ILoggerService>();
 
             mockPaymentService.Setup<PaymentResponse>(paymentService => paymentService.Create(createPaymentDto)).Returns(paymentResponse);
 

@@ -21,10 +21,7 @@
 #### This is then used by the docker also.
 ---
 
-
-
 ## Running:
-
 
 `docker-compose up -d`
 #### OR
@@ -38,11 +35,9 @@
 
 ---
 
-
 ## Tests:
 
 `make run-tests`
-
 
 
 Have Fun ;)

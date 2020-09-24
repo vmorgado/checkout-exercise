@@ -37,7 +37,16 @@
 
 ## Tests:
 
+To run the whole stack:
+
 `make run-tests`
 
+To run unit tests:
+
+`make unit-tests`
+
+To run integration tests:
+
+`make integration-tests`
 
 Have Fun ;)

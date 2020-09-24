@@ -10,6 +10,7 @@ clean:
 run-tests:
 	make unit-tests
 	make integration-tests
+	
 unit-tests:
 	dotnet test "./Tests/UnitTests/UnitTests.csproj"
 

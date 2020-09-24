@@ -25,6 +25,7 @@ namespace dotnetexample.Models
     }
 
     public class CreatePaymentDto {
+        public CreatePaymentDto() {}
         [Required]
         public string Issuer { get; set; }
         [Required]

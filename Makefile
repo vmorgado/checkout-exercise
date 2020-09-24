@@ -3,10 +3,18 @@ clean:
 	rm -rf bin/
 	rm -rf Tests/UnitTests/obj
 	rm -rf Tests/UnitTests/bin
+	rm -rf Tests/IntegrationTests/obj
+	rm -rf Tests/IntegrationTests/bin
 	rm -rf app/node_modules
 
 run-tests:
+	make unit-tests
+	make integration-tests
+unit-tests:
 	dotnet test "./Tests/UnitTests/UnitTests.csproj"
+
+integration-tests:
+	dotnet test "./Tests/IntegrationTests/IntegrationTests.csproj"
 
 generate-local-certificate:
 	dotnet dev-certs https -ep ./certificates/backend.pfx -p defaultpassword

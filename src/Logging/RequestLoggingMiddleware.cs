@@ -84,7 +84,7 @@ namespace dotnetexample.Logging
 
                 _logger.Log<ExceptionMetric>(LogLevel.Error, new EventId {}, exceptionMetric, e );
                 
-                await _next(httpContext);
+                // await _next(httpContext);
             }
         }
         private async Task<string> ReadRequestBody(HttpRequest request)
@@ -124,7 +124,7 @@ namespace dotnetexample.Logging
                 
                 // when we intercept the payment request we have access to the card data at this point. in this case we should remove it before logging
 
-                var unserializedReqBody = JsonSerializer.Deserialize<CreatePaymentDto>(requestBody);
+                var unserializedReqBody = Newtonsoft.Json.JsonConvert.DeserializeObject<CreatePaymentDto>(requestBody);
                 unserializedReqBody.CardNumber = "";
                 unserializedReqBody.CCV = "";
                 unserializedReqBody.ExpiryMonth = 1;

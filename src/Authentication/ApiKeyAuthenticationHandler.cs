@@ -45,7 +45,6 @@ namespace dotnetexample.Authentication
                 new Claim(ClaimTypes.Name, existingApiKey.Owner)
             };
 
-                claims.AddRange(existingApiKey.Roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
                 var identity = new ClaimsIdentity(claims, Options.AuthenticationType);
                 var identities = new List<ClaimsIdentity> { identity };
